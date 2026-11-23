@@ -1,0 +1,19 @@
+name: User Module V&V Pipeline
+
+on:
+  push:
+    branches: [ main, dev ] # Most likely
+    paths:
+      - 'backend/src/modules/user/**' # MUST
+      - 'requirements.txt' # Most likely
+  pull_request:
+    branches: [ main, dev ]
+    paths:
+      - 'backend/src/modules/user/**'
+      - 'requirements.txt'
+
+jobs:
+# TODO: jobs will be determined to either bash code in yml or external .py script
+  static-analysis: # MUST
+  security-sast: # MUST
+  unit-integration-tests: # MUST
