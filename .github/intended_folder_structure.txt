@@ -1,0 +1,9 @@
+.github/
+└── workflows/
+    ├── user-vv-pipeline.yml
+    └── scripts/
+        ├── _template_vv_step.py
+        ├── run_static_analysis.py
+        ├── run_security_scan.py
+        ├── run_tests_and_coverage.py
+        └── evaluate_pipeline_gate.py

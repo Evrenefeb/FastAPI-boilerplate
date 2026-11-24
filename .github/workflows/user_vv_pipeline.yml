@@ -1,0 +1,111 @@
+name: User Module V&V Pipeline
+
+on:
+  push:
+    branches: [ "main", "dev" ]
+  pull_request:
+    branches: [ "main", "dev" ]
+
+permissions:
+  contents: read
+
+env:
+  TARGET_MODULE: "backend/src/modules/user"
+  COVERAGE_THRESHOLD: "80"
+
+jobs:
+  # Runs static analysis
+  # Checks code style
+  # Uses external script
+  static-analysis:
+    name: Step 1 - Static Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # https://github.com/actions/checkout
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install lint tools
+        run: pip install flake8 pylint
+
+      - name: Run Static Analysis Script
+        shell: bash
+        env:
+          TARGET_MODULE: ${{ env.TARGET_MODULE }}
+        # run: python3 .github/workflows/scripts/run_static_analysis.py # Pending
+
+  # Runs SAST scan
+  # Checks security issues
+  # Uses external script
+  security-scan:
+    name: Step 4 - Security Scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # https://github.com/actions/checkout
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install Bandit
+        run: pip install bandit
+
+      - name: Run Security Scan Script
+        shell: bash
+        env:
+          TARGET_MODULE: ${{ env.TARGET_MODULE }}
+        # run: python3 .github/workflows/scripts/run_security_scan.py # Pending
+
+  # Runs module tests
+  # Checks coverage gate
+  # Uses external script
+  tests-and-coverage:
+    name: Steps 2 & 3 - Tests & Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # https://github.com/actions/checkout
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install test tools
+        run: pip install pytest pytest-cov pytest-asyncio httpx
+
+      - name: Run Tests & Coverage Script
+        shell: bash
+        env:
+          TARGET_MODULE: ${{ env.TARGET_MODULE }}
+          COVERAGE_THRESHOLD: ${{ env.COVERAGE_THRESHOLD }}
+        # run: python3 .github/workflows/scripts/run_tests_and_coverage.py #
+
+  # Evaluates upstream jobs
+  # Enforces pipeline gate
+  # Uses external script
+  pipeline-gate:
+    name: Step 5 - V&V Pipeline Gate
+    runs-on: ubuntu-latest
+    needs: [static-analysis, security-scan, tests-and-coverage]
+    if: always()
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # https://github.com/actions/checkout
+
+      - name: Evaluate Pipeline Gate Script
+        shell: bash
+        env:
+          LINT_RESULT: ${{ needs.static-analysis.result }}
+          SECURITY_RESULT: ${{ needs.security-scan.result }}
+          TESTS_RESULT: ${{ needs.tests-and-coverage.result }}
+        # run: python3 .github/workflows/scripts/evaluate_pipeline_gate.py # Pending
