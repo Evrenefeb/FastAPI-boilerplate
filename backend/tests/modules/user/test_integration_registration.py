@@ -1,9 +1,13 @@
 import pytest
 from httpx import AsyncClient
+from sqlalchemy import select
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from src.modules.user.models import User
 
 
 @pytest.mark.asyncio
-async def test_register_user_persists_to_database(client: AsyncClient):
+async def test_register_user_persists_to_database(client: AsyncClient, db_session: AsyncSession):
     """
     FRQ-2.3.1: Registering a user through the API must correctly
     persist the record in the database.
@@ -16,7 +20,10 @@ async def test_register_user_persists_to_database(client: AsyncClient):
     }
 
     response = await client.post("/api/v1/users/", json=payload)
-    data = response.json()
-
-    print("\n\nACTUAL RESPONSE:", data, "\n\n")
     assert response.status_code == 201
+
+    result = await db_session.execute(select(User).where(User.email == payload["email"]))
+    created_user = result.scalar_one()
+
+    assert created_user.username == payload["username"]
+    assert created_user.name == payload["name"]
