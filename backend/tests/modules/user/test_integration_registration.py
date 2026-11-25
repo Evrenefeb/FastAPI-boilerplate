@@ -9,7 +9,7 @@ from src.modules.user.models import User
 @pytest.mark.asyncio
 async def test_register_user_persists_to_database(client: AsyncClient, db_session: AsyncSession):
     """
-    FRQ-2.3.1: Registering a user through the API must correctly
+    FRQ-3.3.1: Registering a user through the API must correctly
     persist the record in the database.
     """
     payload = {
