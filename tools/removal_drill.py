@@ -52,12 +52,18 @@ FEATURES: dict[str, Feature] = {
             "backend/tests/integration/accounts",
             "backend/tests/unit/infrastructure/auth",
             "backend/tests/unit/modules/user",
+            # Step 6 acceptance & validation tests (use the user module)
+            "backend/tests/unit/interfaces/test_phase_a_contract.py",
+            "backend/tests/integration/test_phase_a_database_contract.py",
+            "backend/tests/integration/phase_b",
         ),
     ),
     "rbac": Feature(
         paths=(
             "backend/src/modules/role",
             "backend/tests/unit/modules/role",
+            # Step 6 acceptance tests also use roles and permissions
+            "backend/tests/integration/phase_b",
             "backend/tests/integration/rbac",
         ),
     ),
@@ -140,6 +146,8 @@ FEATURES: dict[str, Feature] = {
         paths=(
             "backend/src/infrastructure/taskiq",
             "backend/tests/unit/infrastructure/taskiq",
+            # Step 6 acceptance tests capture outgoing email through taskiq
+            "backend/tests/integration/phase_b",
         ),
         combination_paths={
             "accounts": (
